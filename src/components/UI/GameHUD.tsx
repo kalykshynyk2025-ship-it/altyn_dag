@@ -54,9 +54,9 @@ export const GameHUD: React.FC<GameHUDProps> = ({
   };
 
   return (
-    <div className="absolute inset-0 pointer-events-none flex flex-col justify-between p-2 sm:p-4 select-none font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="fixed inset-0 z-30 pointer-events-none flex flex-col justify-between p-2.5 sm:p-4 select-none font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Header Bar */}
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1.5 pt-1">
         <div className="flex justify-between items-center bg-[#FDF6E3]/95 backdrop-blur-md rounded-2xl p-2.5 sm:p-3 border-2 border-[#D4AF37] text-[#2D2D2D] shadow-lg pointer-events-auto">
           {/* Chapter Title & Meter */}
           <div className="flex flex-col">
@@ -77,7 +77,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
           </div>
 
           {/* Tokens & Arrows Counters */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Gold Tokens */}
             <div className="flex items-center gap-1 bg-[#F5F5F0] px-2 py-1 rounded-xl border border-[#D4AF37]/80 shadow-xs">
               <div className="w-3.5 h-3.5 rounded-full bg-[#D4AF37] text-[#2D2D2D] flex items-center justify-center text-[9px] font-bold">
@@ -113,7 +113,7 @@ export const GameHUD: React.FC<GameHUDProps> = ({
 
       {/* Active PowerUps Display */}
       {activePowerUps.length > 0 && (
-        <div className="flex flex-col gap-1.5 items-start max-w-xs pointer-events-auto">
+        <div className="flex flex-col gap-1.5 items-start max-w-xs pointer-events-auto my-auto">
           {activePowerUps.map((p) => {
             const pDef = GAME_CONFIG.POWERUPS[p.type];
             const pct = Math.max(0, (p.remainingTime / p.maxTime) * 100);
@@ -140,60 +140,73 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         </div>
       )}
 
-      {/* Bottom Controls Area (Touch Buttons for Mobile & Keyboard Hints) */}
-      <div className="flex justify-between items-end w-full pb-1 pointer-events-auto">
+      {/* Bottom Controls Area (Touch Movement Pad & Shoot Button with Mobile Safe-Area Elevation) */}
+      <div className="flex justify-between items-end w-full pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] sm:pb-4 px-1 pointer-events-auto z-40">
         {/* On-Screen Touch Movement Pad */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Move Left Button */}
           <button
-            onClick={onMoveLeft}
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FDF6E3]/95 border-2 border-[#D4AF37] text-[#8B4513] shadow-lg flex items-center justify-center active:scale-90 transition-all"
+            onTouchStart={(e) => { e.stopPropagation(); onMoveLeft(); }}
+            onClick={(e) => { e.stopPropagation(); onMoveLeft(); }}
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-[#FDF6E3]/95 border-2 border-[#D4AF37] text-[#8B4513] shadow-xl flex items-center justify-center active:scale-90 transition-all"
             title="Move Left"
           >
-            <ArrowLeft className="w-6 h-6 stroke-[3]" />
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
           </button>
 
           {/* Move Right Button */}
           <button
-            onClick={onMoveRight}
-            className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FDF6E3]/95 border-2 border-[#D4AF37] text-[#8B4513] shadow-lg flex items-center justify-center active:scale-90 transition-all"
+            onTouchStart={(e) => { e.stopPropagation(); onMoveRight(); }}
+            onClick={(e) => { e.stopPropagation(); onMoveRight(); }}
+            className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-[#FDF6E3]/95 border-2 border-[#D4AF37] text-[#8B4513] shadow-xl flex items-center justify-center active:scale-90 transition-all"
             title="Move Right"
           >
-            <ArrowRight className="w-6 h-6 stroke-[3]" />
+            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 stroke-[3]" />
           </button>
 
           {/* Jump Button */}
           <button
-            onClick={onJump}
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#FDF6E3]/90 border border-[#2D2D2D]/20 text-[#2D2D2D] shadow-md flex items-center justify-center active:scale-90 transition-all text-[11px] font-bold"
+            onTouchStart={(e) => { e.stopPropagation(); onJump(); }}
+            onClick={(e) => { e.stopPropagation(); onJump(); }}
+            className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-[#FDF6E3]/90 border border-[#2D2D2D]/20 text-[#2D2D2D] shadow-md flex items-center justify-center active:scale-90 transition-all text-[11px] font-bold"
             title="Jump"
           >
-            <ArrowUp className="w-5 h-5 stroke-[2.5]" />
+            <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
           </button>
 
           {/* Slide Button */}
           <button
-            onClick={onSlide}
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#FDF6E3]/90 border border-[#2D2D2D]/20 text-[#2D2D2D] shadow-md flex items-center justify-center active:scale-90 transition-all text-[11px] font-bold"
+            onTouchStart={(e) => { e.stopPropagation(); onSlide(); }}
+            onClick={(e) => { e.stopPropagation(); onSlide(); }}
+            className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl bg-[#FDF6E3]/90 border border-[#2D2D2D]/20 text-[#2D2D2D] shadow-md flex items-center justify-center active:scale-90 transition-all text-[11px] font-bold"
             title="Slide"
           >
-            <ArrowDown className="w-5 h-5 stroke-[2.5]" />
+            <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
           </button>
         </div>
 
-        {/* Archery Shoot Touch Button */}
+        {/* Archery Shoot Touch Button - High Visibility & Instant Mobile Touch Response */}
         <button
-          onClick={onShootBow}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+            if (arrows > 0) onShootBow();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (arrows > 0) onShootBow();
+          }}
           disabled={arrows <= 0}
-          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center border-2 shadow-xl transition-all active:scale-90 ${
+          className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center border-2 border-[#D4AF37] shadow-2xl transition-all active:scale-90 z-50 ${
             arrows > 0
-              ? 'bg-gradient-to-b from-[#8B4513] to-[#5C2E0B] border-[#D4AF37] text-[#FDF6E3] shadow-lg'
-              : 'bg-[#2D2D2D]/30 border-[#2D2D2D]/20 text-[#2D2D2D]/40 opacity-60'
+              ? 'bg-gradient-to-b from-[#A52A2A] via-[#8B4513] to-[#5C2E0B] text-[#FDF6E3] ring-4 ring-[#D4AF37]/40 shadow-red-900/50'
+              : 'bg-[#2D2D2D]/60 border-[#2D2D2D]/40 text-[#FDF6E3]/40 opacity-70'
           }`}
+          title="Shoot Bow"
+          aria-label="Shoot Bow"
         >
-          <Target className="w-6 h-6 sm:w-7 sm:h-7" />
-          <span className="text-[9px] font-black uppercase tracking-tighter mt-0.5">
-            {getTranslation('shoot', lang)}
+          <Target className="w-6 h-6 sm:w-7 sm:h-7 drop-shadow-md" />
+          <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-tighter mt-0.5 drop-shadow">
+            {getTranslation('shoot', lang)} ({arrows})
           </span>
         </button>
       </div>
