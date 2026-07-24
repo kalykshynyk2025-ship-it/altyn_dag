@@ -14,7 +14,7 @@ import { SettingsModal } from './components/UI/SettingsModal';
 import { WelcomeGuideModal } from './components/UI/WelcomeGuideModal';
 import { STORY_CHAPTERS, getLocalizedChapter } from './narrative/storyData';
 import { getTranslation, Language } from './utils/translations';
-import { Play, Home, RotateCcw } from 'lucide-react';
+import { Play, Home, RotateCcw, Maximize, Minimize } from 'lucide-react';
 
 export default function App() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -24,6 +24,26 @@ export default function App() {
   const [profile, setProfile] = useState<PlayerProfile>(() => SaveManager.loadProfile());
   const [gameState, setGameState] = useState<GameState>('MENU');
   const [activeModal, setActiveModal] = useState<'NONE' | 'LORE' | 'UPGRADES' | 'GDD' | 'SETTINGS' | 'GUIDE'>('NONE');
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
+
+  // Track Fullscreen state changes
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => console.log('Fullscreen error:', err));
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((err) => console.log('Exit fullscreen error:', err));
+      }
+    }
+  };
 
   // Trigger welcome tutorial modal on first run
   const [showWelcomeGuide, setShowWelcomeGuide] = useState<boolean>(() => {
@@ -115,21 +135,21 @@ export default function App() {
         switch (e.code) {
           case 'ArrowLeft':
           case 'KeyA':
-            engineRef.current.moveRight();
+            engineRef.current.moveLeft();
             break;
           case 'ArrowRight':
           case 'KeyD':
-            engineRef.current.moveLeft();
+            engineRef.current.moveRight();
             break;
           case 'ArrowUp':
           case 'KeyW':
-          case 'Space':
             engineRef.current.jump();
             break;
           case 'ArrowDown':
           case 'KeyS':
             engineRef.current.slide();
             break;
+          case 'Space':
           case 'KeyF':
           case 'KeyE':
             engineRef.current.shootBow();
@@ -172,8 +192,14 @@ export default function App() {
     if (Math.abs(dx) > Math.abs(dy)) {
       // Horizontal Swipe
       if (Math.abs(dx) > minSwipeDist) {
-        if (dx > 0) engineRef.current.moveRight();
-        else engineRef.current.moveLeft();
+        // Mobile swipe inversion requested:
+        // Swipe left (dx < 0) -> character moves right
+        // Swipe right (dx > 0) -> character moves left
+        if (dx > 0) {
+          engineRef.current.moveLeft();
+        } else {
+          engineRef.current.moveRight();
+        }
       }
     } else {
       // Vertical Swipe
@@ -205,6 +231,20 @@ export default function App() {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden bg-stone-950 font-sans select-none touch-none">
+      {/* Mini Fullscreen Enter/Exit Button - Overlaying all windows */}
+      <button
+        onClick={toggleFullscreen}
+        className="fixed top-2.5 right-2.5 z-[100] p-2 bg-[#2D2D2D]/90 hover:bg-[#1A1A1A] text-[#D4AF37] border-2 border-[#D4AF37]/80 rounded-xl shadow-2xl backdrop-blur-md active:scale-90 transition-all flex items-center justify-center pointer-events-auto"
+        title={isFullscreen ? (lang === 'EN' ? "Exit Fullscreen" : "Выйти из полноэкранного режима") : (lang === 'EN' ? "Fullscreen Mode" : "Полноэкранный режим")}
+        aria-label="Toggle Fullscreen"
+      >
+        {isFullscreen ? (
+          <Minimize className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
+        ) : (
+          <Maximize className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
+        )}
+      </button>
+
       {/* 2.5D Canvas World */}
       <canvas
         ref={canvasRef}

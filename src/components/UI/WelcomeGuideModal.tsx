@@ -145,37 +145,47 @@ export const WelcomeGuideModal: React.FC<WelcomeGuideModalProps> = ({
                   <span>{lang === 'TYV' ? 'Управленииге дуза' : lang === 'EN' ? 'Hero Controls' : 'Управление Богатырем'}</span>
                 </h3>
 
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div className="bg-[#FDF6E3] p-2 rounded-xl border border-[#D4AF37]/30 flex items-center gap-2">
-                    <span className="bg-[#8B4513] text-[#FDF6E3] px-1.5 py-0.5 rounded font-mono font-bold text-[10px]">← / A</span>
+                    <span className="bg-[#8B4513] text-[#FDF6E3] px-1.5 py-0.5 rounded font-mono font-bold text-[10px]">
+                      {lang === 'EN' ? '← swipe / A' : '← свайп / A'}
+                    </span>
                     <span className="font-semibold text-[11px]">
-                      {lang === 'TYV' ? 'Солга шинир' : lang === 'EN' ? 'Move left' : 'Перемещение влево'}
+                      {lang === 'TYV' ? 'Солга шинир (Перемещение влево)' : lang === 'EN' ? 'Move left' : 'Перемещение влево'}
                     </span>
                   </div>
                   <div className="bg-[#FDF6E3] p-2 rounded-xl border border-[#D4AF37]/30 flex items-center gap-2">
-                    <span className="bg-[#8B4513] text-[#FDF6E3] px-1.5 py-0.5 rounded font-mono font-bold text-[10px]">→ / D</span>
+                    <span className="bg-[#8B4513] text-[#FDF6E3] px-1.5 py-0.5 rounded font-mono font-bold text-[10px]">
+                      {lang === 'EN' ? '→ swipe / D' : '→ свайп / D'}
+                    </span>
                     <span className="font-semibold text-[11px]">
-                      {lang === 'TYV' ? 'Оңга шинир' : lang === 'EN' ? 'Move right' : 'Перемещение вправо'}
+                      {lang === 'TYV' ? 'Оңга шинир (Перемещение вправо)' : lang === 'EN' ? 'Move right' : 'Перемещение вправо'}
                     </span>
                   </div>
                   <div className="bg-[#FDF6E3] p-2 rounded-xl border border-[#D4AF37]/30 flex items-center gap-2">
-                    <span className="bg-[#8B4513] text-[#FDF6E3] px-1.5 py-0.5 rounded font-mono font-bold text-[10px]">↑ / W</span>
+                    <span className="bg-[#8B4513] text-[#FDF6E3] px-1.5 py-0.5 rounded font-mono font-bold text-[10px]">
+                      {lang === 'EN' ? '↑ swipe / W' : '↑ свайп / W'}
+                    </span>
                     <span className="font-semibold text-[11px]">
-                      {lang === 'TYV' ? 'Дептер (Прыжок)' : lang === 'EN' ? 'Jump over fences' : 'Прыжок (через заборы)'}
+                      {lang === 'TYV' ? 'Дептер (через логи биле хашаа)' : lang === 'EN' ? 'Jump (over logs and fences)' : 'Прыжок (через логи и заборы)'}
                     </span>
                   </div>
                   <div className="bg-[#FDF6E3] p-2 rounded-xl border border-[#D4AF37]/30 flex items-center gap-2">
-                    <span className="bg-[#8B4513] text-[#FDF6E3] px-1.5 py-0.5 rounded font-mono font-bold text-[10px]">↓ / S</span>
+                    <span className="bg-[#8B4513] text-[#FDF6E3] px-1.5 py-0.5 rounded font-mono font-bold text-[10px]">
+                      {lang === 'EN' ? '↓ swipe / S' : '↓ свайп / S'}
+                    </span>
                     <span className="font-semibold text-[11px]">
-                      {lang === 'TYV' ? 'Чыпшыр (Скольжение)' : lang === 'EN' ? 'Slide under branches' : 'Скольжение (под веткой)'}
+                      {lang === 'TYV' ? 'Чыпшыр (под ветками деревьев)' : lang === 'EN' ? 'Slide (under tree branches)' : 'Скольжение (под ветками деревьев)'}
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-2 bg-[#8B4513]/10 p-2 rounded-xl border border-[#8B4513]/30 flex items-center gap-2 text-xs">
-                  <span className="bg-red-700 text-[#FDF6E3] px-2 py-0.5 rounded font-mono font-bold text-[10px]">Space / F</span>
+                  <span className="bg-red-700 text-[#FDF6E3] px-2 py-0.5 rounded font-mono font-bold text-[10px]">
+                    {lang === 'EN' ? 'On-screen button / F' : lang === 'TYV' ? 'Экранда демдек / F' : 'значок на экране / F'}
+                  </span>
                   <span className="font-bold text-[#8B4513] text-[11px]">
-                    {lang === 'TYV' ? 'Жаадан атар (Стрельба из лука по врагам и таш)' : lang === 'EN' ? 'Shoot bow (at enemies & rocks)' : 'Стрельба из богатырского лука (по врагам и камням)'}
+                    {lang === 'TYV' ? 'Жаадан атар (Стрельба из богатырского лука по врагам и камням)' : lang === 'EN' ? 'Shoot bow (at enemies & rocks)' : 'Стрельба из богатырского лука (по врагам и камням)'}
                   </span>
                 </div>
               </div>
