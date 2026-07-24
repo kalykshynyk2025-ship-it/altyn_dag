@@ -133,13 +133,13 @@ export default function App() {
 
       if (gameState === 'PLAYING') {
         switch (e.code) {
-          case 'ArrowLeft':
-          case 'KeyA':
-            engineRef.current.moveRight();
-            break;
           case 'ArrowRight':
-          case 'KeyD':
+          case 'KeyA':
             engineRef.current.moveLeft();
+            break;
+          case 'ArrowLeft':
+          case 'KeyD':
+            engineRef.current.moveRight();
             break;
           case 'ArrowUp':
           case 'KeyW':
