@@ -14,7 +14,7 @@ export const StoryTellerMemory: React.FC<StoryTellerMemoryProps> = ({ profile, o
   const lang: Language = profile.settings.language || 'RU';
 
   const selectedFragment = LORE_FRAGMENTS.find(f => f.id === selectedFragmentId) || LORE_FRAGMENTS[0];
-  const isUnlocked = profile.unlockedLoreIds.includes(selectedFragment.id);
+  const isUnlocked = profile.unlockedLoreIds.includes(selectedFragment.id) || profile.completedChapters.includes(selectedFragment.chapterId) || selectedFragment.chapterId <= profile.currentChapter;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm font-['Plus_Jakarta_Sans',sans-serif]">
@@ -63,7 +63,7 @@ export const StoryTellerMemory: React.FC<StoryTellerMemoryProps> = ({ profile, o
             </h3>
 
             {LORE_FRAGMENTS.map(fragment => {
-              const unlocked = profile.unlockedLoreIds.includes(fragment.id);
+              const unlocked = profile.unlockedLoreIds.includes(fragment.id) || profile.completedChapters.includes(fragment.chapterId) || fragment.chapterId <= profile.currentChapter;
               const isSelected = fragment.id === selectedFragmentId;
 
               return (

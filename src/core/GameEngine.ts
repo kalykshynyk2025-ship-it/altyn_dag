@@ -270,8 +270,8 @@ export class GameEngine {
     const horse = HORSE_BREEDS.find(h => h.id === this.profile.equippedHorseId) || HORSE_BREEDS[0];
     const heroLevelMultiplier = 1 + (this.profile.heroLevel - 1) * 0.05;
 
-    // 1. Acceleration & Distance (Progressive difficulty per chapter & horse speed & hero level)
-    const chapterSpeedBase = (GAME_CONFIG.LANE_SPEED_BASE + (this.currentChapterId - 1) * 3.5) * horse.baseSpeed * heroLevelMultiplier;
+    // 1. Acceleration & Distance (Progressive difficulty per chapter & horse speed & hero level +5% per level)
+    const chapterSpeedBase = (GAME_CONFIG.LANE_SPEED_BASE + (this.currentChapterId - 1) * 2.0) * horse.baseSpeed * heroLevelMultiplier;
     this.currentSpeed = Math.min(
       GAME_CONFIG.LANE_SPEED_MAX,
       chapterSpeedBase + (this.distanceRun / 100) * GAME_CONFIG.ACCELERATION
@@ -444,6 +444,10 @@ export class GameEngine {
             audioManager.playPowerUpSound();
           } else if (item.type === 'POWERUP' && item.powerUpType) {
             this.activatePowerUp(item.powerUpType);
+          } else if (item.type === 'SACRED_SACK') {
+            const superPowerTypes: PowerUpType[] = ['SHIELD_SPIRIT', 'HERO_VOICE', 'EAGLE_WINGS'];
+            const chosenSuper = superPowerTypes[Math.floor(Math.random() * superPowerTypes.length)];
+            this.activateSuperPowerUp(chosenSuper);
           } else if (item.type === 'LORE_FRAGMENT' && item.fragmentId) {
             if (!this.profile.unlockedLoreIds.includes(item.fragmentId)) {
               this.profile.unlockedLoreIds.push(item.fragmentId);
@@ -455,8 +459,8 @@ export class GameEngine {
     });
 
     // 10. Player Collision Detection with Obstacles
-    const hasShield = this.activePowerUps.some(p => p.type === 'SHIELD_SPIRIT');
-    const hasHeroVoice = this.activePowerUps.some(p => p.type === 'HERO_VOICE');
+    const shieldPowerUp = this.activePowerUps.find(p => p.type === 'SHIELD_SPIRIT');
+    const heroVoicePowerUp = this.activePowerUps.find(p => p.type === 'HERO_VOICE');
 
     this.obstacles.forEach(obs => {
       if (!obs.destroyed && obs.lane === this.targetLane && Math.abs(obs.z - playerZ) < 2.2) {
@@ -465,16 +469,33 @@ export class GameEngine {
           return;
         }
 
-        if (hasHeroVoice) {
+        if (heroVoicePowerUp) {
           // Voice clears obstacle
           obs.destroyed = true;
           audioManager.playHitSound();
+          if (heroVoicePowerUp.charges !== undefined) {
+            heroVoicePowerUp.charges -= 1;
+            if (heroVoicePowerUp.charges <= 0) {
+              this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'HERO_VOICE');
+            }
+          }
           return;
         }
 
         if (hasEagleWings) {
           // Soar over
           return;
+        }
+
+        // River obstacle check (Chapter 4)
+        if (obs.type === 'RIVER' || obs.type === 'RIVER_GAP') {
+          if (this.playerY > 1.2) {
+            // Successfully jumped over river
+            return;
+          } else {
+            this.handleGameOver('Упал в бурный таежный поток!');
+            return;
+          }
         }
 
         // Jump over / Slide under check
@@ -489,11 +510,18 @@ export class GameEngine {
         if (obs.canSlideUnder && this.isSliding) safe = true;
 
         if (!safe) {
-          if (hasShield) {
+          if (shieldPowerUp) {
             // Shield absorbs blow
             obs.destroyed = true;
-            this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'SHIELD_SPIRIT');
             audioManager.playHitSound();
+            if (shieldPowerUp.charges !== undefined) {
+              shieldPowerUp.charges -= 1;
+              if (shieldPowerUp.charges <= 0) {
+                this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'SHIELD_SPIRIT');
+              }
+            } else {
+              this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'SHIELD_SPIRIT');
+            }
           } else {
             // GAME OVER!
             this.handleGameOver('Столкновение с препятствием!');
@@ -506,10 +534,17 @@ export class GameEngine {
     this.enemies.forEach(enemy => {
       if (!enemy.destroyed && enemy.lane === this.targetLane && Math.abs(enemy.z - playerZ) < 2.2) {
         if (hasEagleWings) return;
-        if (hasShield) {
+        if (shieldPowerUp) {
           enemy.destroyed = true;
-          this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'SHIELD_SPIRIT');
           audioManager.playHitSound();
+          if (shieldPowerUp.charges !== undefined) {
+            shieldPowerUp.charges -= 1;
+            if (shieldPowerUp.charges <= 0) {
+              this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'SHIELD_SPIRIT');
+            }
+          } else {
+            this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'SHIELD_SPIRIT');
+          }
         } else {
           this.handleGameOver('Вражеский воин преградил путь!');
         }
@@ -558,6 +593,31 @@ export class GameEngine {
     }
   }
 
+  // Activate Super Powerup from Sacred Sacks (Chapter 5 feature: 5x duration and 15 charges)
+  public activateSuperPowerUp(pType: PowerUpType) {
+    const pDef = GAME_CONFIG.POWERUPS[pType];
+    if (!pDef) return;
+
+    audioManager.playPowerUpSound();
+    // 5x duration: SHIELD = 50s, HERO_VOICE = 25s, EAGLE_WINGS = 35s
+    const superDuration = pType === 'SHIELD_SPIRIT' ? 50 : pType === 'HERO_VOICE' ? 25 : pType === 'EAGLE_WINGS' ? 35 : pDef.durationSeconds * 3;
+    const charges = (pType === 'SHIELD_SPIRIT' || pType === 'HERO_VOICE') ? 15 : undefined;
+
+    const existing = this.activePowerUps.find(p => p.type === pType);
+    if (existing) {
+      existing.remainingTime = superDuration;
+      existing.maxTime = superDuration;
+      existing.charges = charges;
+    } else {
+      this.activePowerUps.push({
+        type: pType,
+        remainingTime: superDuration,
+        maxTime: superDuration,
+        charges
+      });
+    }
+  }
+
   // Find a safe lane for Ancestral Path
   private findSafeLane(): Lane {
     const checkZ = this.cameraZ + 25;
@@ -579,7 +639,7 @@ export class GameEngine {
     this.nextSegmentZ += GAME_CONFIG.SEGMENT_LENGTH;
 
     // Available obstacle pool based on chapter and biome
-    const obstacleTypes: Array<'YURT' | 'ROCK' | 'LOG' | 'BARRICADE' | 'STONE_OVAO' | 'TREE_BRANCH' | 'ROCKFALL'> = [
+    const obstacleTypes: Array<'YURT' | 'ROCK' | 'LOG' | 'BARRICADE' | 'STONE_OVAO' | 'TREE_BRANCH' | 'ROCKFALL' | 'RIVER'> = [
       'YURT', 'ROCK', 'LOG', 'BARRICADE', 'STONE_OVAO'
     ];
 
@@ -587,45 +647,81 @@ export class GameEngine {
       obstacleTypes.push('ROCKFALL');
     }
 
-    if (this.currentChapterId >= 3 || this.biome.id === 'TAIGA' || this.biome.id === 'ENEMY_BORDER') {
+    if (this.currentChapterId >= 3 || this.biome.id === 'ENEMY_BORDER') {
       obstacleTypes.push('TREE_BRANCH', 'TREE_BRANCH'); // Extra weight for tree branches from chapter 3!
     }
+
+    const isTaigaChapter = this.currentChapterId === 4 || this.biome.id === 'TAIGA';
+    if (isTaigaChapter) {
+      obstacleTypes.push('RIVER', 'RIVER', 'RIVER', 'LOG'); // Rivers are prominent in Taiga!
+    }
+
+    const isChapter5Plus = this.currentChapterId >= 5;
 
     const safeLane = (Math.floor(Math.random() * 3) - 1) as Lane;
     const obstacleDensity = Math.min(0.85, 0.55 + this.currentChapterId * 0.05);
 
-    // Place obstacles on non-safe lanes
-    ([-1, 0, 1] as Lane[]).forEach(lane => {
-      if (lane !== safeLane && Math.random() < obstacleDensity) {
-        const obsType = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
-        const obsZ = segZ + Math.random() * 25 + 5;
-
+    // In Chapter 4 (Taiga), high chance of spawning a 3-lane River spanning all lanes
+    if (isTaigaChapter && Math.random() < 0.45) {
+      const riverZ = segZ + 30;
+      ([-1, 0, 1] as Lane[]).forEach(l => {
         this.obstacles.push({
-          id: `obs_${segZ}_${lane}`,
-          type: obsType,
-          lane,
-          z: obsZ,
+          id: `river_3lane_${segZ}_${l}`,
+          type: 'RIVER',
+          lane: l,
+          z: riverZ,
           width: 1,
-          height: 1,
-          canJumpOver: obsType === 'LOG' || obsType === 'ROCK',
-          canSlideUnder: obsType === 'BARRICADE' || obsType === 'TREE_BRANCH',
-          canDestroyWithBow: obsType === 'BARRICADE' || obsType === 'TREE_BRANCH' || obsType === 'ROCKFALL'
+          height: 0.5,
+          canJumpOver: true,
+          canSlideUnder: false,
+          canDestroyWithBow: false
         });
-
-        // Spawn Gold Tokens IMMEDIATELY BEHIND the obstacle to reward clean jumps/slides!
-        if (obsType === 'LOG' || obsType === 'ROCK' || obsType === 'TREE_BRANCH' || obsType === 'BARRICADE') {
-          for (let k = 1; k <= 3; k++) {
+      });
+    } else {
+      // Place obstacles on non-safe lanes
+      ([-1, 0, 1] as Lane[]).forEach(lane => {
+        if (lane !== safeLane && Math.random() < obstacleDensity) {
+          // In Chapter 5, replace some repetitive obstacles with Sacred Sacks (Мешки)
+          if (isChapter5Plus && Math.random() < 0.35) {
             this.collectibles.push({
-              id: `tok_behind_${segZ}_${lane}_${k}`,
-              type: 'TOKEN',
+              id: `sacred_sack_${segZ}_${lane}`,
+              type: 'SACRED_SACK',
               lane: lane,
-              z: obsZ + k * 5 + 4,
+              z: segZ + Math.random() * 25 + 5,
               collected: false
             });
+          } else {
+            const obsType = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
+            const obsZ = segZ + Math.random() * 25 + 5;
+
+            this.obstacles.push({
+              id: `obs_${segZ}_${lane}`,
+              type: obsType,
+              lane,
+              z: obsZ,
+              width: 1,
+              height: 1,
+              canJumpOver: obsType === 'LOG' || obsType === 'ROCK' || obsType === 'RIVER',
+              canSlideUnder: obsType === 'BARRICADE' || obsType === 'TREE_BRANCH',
+              canDestroyWithBow: obsType === 'BARRICADE' || obsType === 'TREE_BRANCH' || obsType === 'ROCKFALL'
+            });
+
+            // Spawn Gold Tokens IMMEDIATELY BEHIND the obstacle to reward clean jumps/slides!
+            if (obsType === 'LOG' || obsType === 'ROCK' || obsType === 'TREE_BRANCH' || obsType === 'BARRICADE') {
+              for (let k = 1; k <= 3; k++) {
+                this.collectibles.push({
+                  id: `tok_behind_${segZ}_${lane}_${k}`,
+                  type: 'TOKEN',
+                  lane: lane,
+                  z: obsZ + k * 5 + 4,
+                  collected: false
+                });
+              }
+            }
           }
         }
-      }
-    });
+      });
+    }
 
     // Place Gold Tokens in formations along safe lane
     for (let i = 0; i < 5; i++) {
@@ -638,8 +734,16 @@ export class GameEngine {
       });
     }
 
-    // Random PowerUp or Arrow Quiver
-    if (Math.random() < 0.28) {
+    // Random PowerUp, Sacred Sack, or Arrow Quiver
+    if (isChapter5Plus && Math.random() < 0.40) {
+      this.collectibles.push({
+        id: `sacred_sack_bonus_${segZ}`,
+        type: 'SACRED_SACK',
+        lane: safeLane,
+        z: segZ + 35,
+        collected: false
+      });
+    } else if (Math.random() < 0.28) {
       const pTypes: PowerUpType[] = ['SPEED_WIND', 'EAGLE_WINGS', 'HERO_VOICE', 'CELESTIAL_ARROW', 'SHIELD_SPIRIT', 'ANCESTRAL_PATH'];
       const chosenP = pTypes[Math.floor(Math.random() * pTypes.length)];
       this.collectibles.push({
@@ -706,6 +810,15 @@ export class GameEngine {
         this.profile.currentChapter = nextChapId;
       }
     }
+
+    // Automatically unlock lore fragments corresponding to completed and next unlocked chapters
+    LORE_FRAGMENTS.forEach(f => {
+      if (f.chapterId <= this.profile.currentChapter || this.profile.completedChapters.includes(f.chapterId)) {
+        if (!this.profile.unlockedLoreIds.includes(f.id)) {
+          this.profile.unlockedLoreIds.push(f.id);
+        }
+      }
+    });
 
     this.profile.tokens += this.tokensCollectedInRun + 200; // Bonus
     this.profile.totalDistanceRun += Math.floor(this.distanceRun);

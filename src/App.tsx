@@ -168,34 +168,30 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [gameState]);
 
-  // Handle Touch Control Gestures (Swipe + Tap)
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length > 0) {
-      touchStartRef.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-        time: performance.now()
-      };
-    }
+  // Handle Pointer/Touch/Mouse Control Gestures (Swipe + Tap)
+  const handlePointerDown = (clientX: number, clientY: number) => {
+    touchStartRef.current = {
+      x: clientX,
+      y: clientY,
+      time: performance.now()
+    };
   };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handlePointerUp = (clientX: number, clientY: number) => {
     if (!touchStartRef.current || !engineRef.current || gameState !== 'PLAYING') return;
 
-    const touchEnd = e.changedTouches[0];
-    const dx = touchEnd.clientX - touchStartRef.current.x;
-    const dy = touchEnd.clientY - touchStartRef.current.y;
+    const dx = clientX - touchStartRef.current.x;
+    const dy = clientY - touchStartRef.current.y;
     const dt = performance.now() - touchStartRef.current.time;
 
     const minSwipeDist = 28;
 
     if (Math.abs(dx) > Math.abs(dy)) {
-      // Horizontal Swipe
+      // Horizontal Swipe (Mobile & Desktop):
+      // Swipe left (dx < 0) -> character moves LEFT
+      // Swipe right (dx > 0) -> character moves RIGHT
       if (Math.abs(dx) > minSwipeDist) {
-        // Mobile swipe inversion requested:
-        // Swipe left (dx < 0) -> character moves right
-        // Swipe right (dx > 0) -> character moves left
-        if (dx > 0) {
+        if (dx < 0) {
           engineRef.current.moveLeft();
         } else {
           engineRef.current.moveRight();
@@ -207,12 +203,32 @@ export default function App() {
         if (dy < 0) engineRef.current.jump();
         else engineRef.current.slide();
       } else if (dt < 250) {
-        // Quick Tap -> Shoot Bow
+        // Quick Tap / Click -> Shoot Bow
         engineRef.current.shootBow();
       }
     }
 
     touchStartRef.current = null;
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (e.touches.length > 0) {
+      handlePointerDown(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (e.changedTouches.length > 0) {
+      handlePointerUp(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    handlePointerDown(e.clientX, e.clientY);
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    handlePointerUp(e.clientX, e.clientY);
   };
 
   // Flow Triggers
@@ -234,14 +250,14 @@ export default function App() {
       {/* Mini Fullscreen Enter/Exit Button - Overlaying all windows */}
       <button
         onClick={toggleFullscreen}
-        className="fixed top-2.5 right-2.5 z-[100] p-2 bg-[#2D2D2D]/90 hover:bg-[#1A1A1A] text-[#D4AF37] border-2 border-[#D4AF37]/80 rounded-xl shadow-2xl backdrop-blur-md active:scale-90 transition-all flex items-center justify-center pointer-events-auto"
+        className="fixed top-2 right-2 sm:top-2.5 sm:right-2.5 z-[100] p-1.5 sm:p-2 bg-[#2D2D2D]/90 hover:bg-[#1A1A1A] text-[#D4AF37] border border-[#D4AF37]/80 rounded-lg shadow-xl backdrop-blur-md active:scale-90 transition-all flex items-center justify-center pointer-events-auto"
         title={isFullscreen ? (lang === 'EN' ? "Exit Fullscreen" : "Выйти из полноэкранного режима") : (lang === 'EN' ? "Fullscreen Mode" : "Полноэкранный режим")}
         aria-label="Toggle Fullscreen"
       >
         {isFullscreen ? (
-          <Minimize className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
+          <Minimize className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37]" />
         ) : (
-          <Maximize className="w-4 h-4 sm:w-5 sm:h-5 text-[#D4AF37]" />
+          <Maximize className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#D4AF37]" />
         )}
       </button>
 
@@ -250,7 +266,9 @@ export default function App() {
         ref={canvasRef}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        className="w-full h-full block"
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        className="w-full h-full block cursor-grab active:cursor-grabbing"
       />
 
       {/* Main Menu Overlay */}

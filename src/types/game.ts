@@ -45,6 +45,7 @@ export type ObstacleType =
   | 'BARRICADE'       // Высокое укрепление (must change lane or shoot)
   | 'YURT'            // Войлочный юрт/повозка
   | 'RIVER_GAP'       // Овраг / река (must jump)
+  | 'RIVER'           // Река (таежный поток, можно только перепрыгнуть, бывает во все 3 полосы)
   | 'STONE_OVAO'      // Оваа / священный каирн (indestructible)
   | 'TREE_BRANCH'     // Дерево с суком (sliding required, chapter 3+)
   | 'ROCKFALL';       // Камнепад / обвал с гор
@@ -75,7 +76,7 @@ export interface Enemy {
 
 export interface CollectibleItem {
   id: string;
-  type: 'TOKEN' | 'ARROW' | 'POWERUP' | 'LORE_FRAGMENT';
+  type: 'TOKEN' | 'ARROW' | 'POWERUP' | 'LORE_FRAGMENT' | 'SACRED_SACK';
   powerUpType?: PowerUpType;
   fragmentId?: string;
   lane: Lane;
@@ -178,4 +179,5 @@ export interface ActivePowerUpState {
   type: PowerUpType;
   remainingTime: number;
   maxTime: number;
+  charges?: number;
 }

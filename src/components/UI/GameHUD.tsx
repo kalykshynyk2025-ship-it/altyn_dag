@@ -111,22 +111,29 @@ export const GameHUD: React.FC<GameHUDProps> = ({
         </div>
       </div>
 
-      {/* Active PowerUps Display */}
+      {/* Active PowerUps Display - Positioned lower on screen above bottom controls */}
       {activePowerUps.length > 0 && (
-        <div className="flex flex-col gap-1.5 items-start max-w-xs pointer-events-auto my-auto">
+        <div className="flex flex-col gap-1.5 items-start max-w-xs pointer-events-auto mt-auto mb-2">
           {activePowerUps.map((p) => {
             const pDef = GAME_CONFIG.POWERUPS[p.type];
             const pct = Math.max(0, (p.remainingTime / p.maxTime) * 100);
             return (
               <div
                 key={p.type}
-                className="flex items-center gap-2 bg-[#FDF6E3]/95 backdrop-blur-md px-2.5 py-1 rounded-xl border border-[#D4AF37] text-xs text-[#2D2D2D] shadow-xs w-40 sm:w-48"
+                className="flex items-center gap-2 bg-[#FDF6E3]/95 backdrop-blur-md px-2.5 py-1 rounded-xl border border-[#D4AF37] text-xs text-[#2D2D2D] shadow-md w-44 sm:w-52"
               >
                 {getPowerUpIcon(p.type)}
                 <div className="flex flex-col flex-1">
-                  <span className="font-bold text-[#8B4513] text-[10px] sm:text-[11px]">
-                    {pDef ? pDef.name : p.type}
-                  </span>
+                  <div className="flex items-center justify-between w-full">
+                    <span className="font-bold text-[#8B4513] text-[10px] sm:text-[11px] truncate">
+                      {pDef ? pDef.name : p.type}
+                    </span>
+                    {p.charges !== undefined && (
+                      <span className="text-[10px] font-black text-amber-800 bg-amber-200/80 px-1.5 py-0.2 rounded-md border border-amber-400 ml-1">
+                        x{p.charges}
+                      </span>
+                    )}
+                  </div>
                   <div className="w-full bg-[#2D2D2D]/15 rounded-full h-1 mt-0.5 overflow-hidden">
                     <div
                       className="bg-[#8B4513] h-full transition-all"

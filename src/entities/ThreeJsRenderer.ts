@@ -629,6 +629,41 @@ export class ThreeJsRenderer {
         rubble.position.set((Math.random() - 0.5) * 1.8, 0.2, (Math.random() - 0.5) * 1.2);
         group.add(rubble);
       }
+    } else if (type === 'RIVER' || type === 'RIVER_GAP') {
+      // River Water Basin across the track
+      const waterMat = new THREE.MeshStandardMaterial({
+        color: 0x0284c7,
+        roughness: 0.1,
+        metalness: 0.8,
+        transparent: true,
+        opacity: 0.88
+      });
+      const waterGeo = new THREE.BoxGeometry(2.8, 0.15, 4.5);
+      const water = new THREE.Mesh(waterGeo, waterMat);
+      water.position.set(0, 0.05, 0);
+      group.add(water);
+
+      // Foam Ripples / Water Currents
+      const foamMat = new THREE.MeshBasicMaterial({ color: 0xe0f2fe, transparent: true, opacity: 0.7 });
+      for (let i = 0; i < 3; i++) {
+        const foam = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.18, 0.4), foamMat);
+        foam.position.set(0, 0.08, -1.5 + i * 1.5);
+        group.add(foam);
+      }
+
+      // Wooden Riverbank Logs at both edges of the river
+      const bankLogMat = new THREE.MeshStandardMaterial({ color: 0x5c2e0b, roughness: 0.8 });
+      const bankLogGeo = new THREE.CylinderGeometry(0.25, 0.25, 2.8, 8);
+
+      const logNear = new THREE.Mesh(bankLogGeo, bankLogMat);
+      logNear.rotation.z = Math.PI / 2;
+      logNear.position.set(0, 0.2, -2.1);
+      group.add(logNear);
+
+      const logFar = new THREE.Mesh(bankLogGeo, bankLogMat);
+      logFar.rotation.z = Math.PI / 2;
+      logFar.position.set(0, 0.2, 2.1);
+      group.add(logFar);
     }
 
     return group;
@@ -677,6 +712,34 @@ export class ThreeJsRenderer {
       const orbMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.85 });
       const orb = new THREE.Mesh(orbGeo, orbMat);
       group.add(orb);
+    } else if (item.type === 'SACRED_SACK') {
+      // Tuvan Sacred Leather Sack (Мешок с дарами)
+      const sackMat = new THREE.MeshStandardMaterial({ color: 0x8b4513, roughness: 0.7 });
+      const trimMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.2 });
+
+      // Sack Body
+      const bodyGeo = new THREE.SphereGeometry(0.65, 12, 12);
+      const body = new THREE.Mesh(bodyGeo, sackMat);
+      body.scale.set(1.0, 1.2, 1.0);
+      group.add(body);
+
+      // Tied neck with Gold Ribbon
+      const tieGeo = new THREE.TorusGeometry(0.35, 0.08, 8, 16);
+      const tie = new THREE.Mesh(tieGeo, trimMat);
+      tie.rotation.x = Math.PI / 2;
+      tie.position.y = 0.6;
+      group.add(tie);
+
+      // Top Frill
+      const frillGeo = new THREE.ConeGeometry(0.4, 0.4, 10);
+      const frill = new THREE.Mesh(frillGeo, sackMat);
+      frill.position.y = 0.85;
+      group.add(frill);
+
+      // Inner Glowing Aura
+      const auraMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.4 });
+      const aura = new THREE.Mesh(new THREE.SphereGeometry(0.9, 12, 12), auraMat);
+      group.add(aura);
     } else {
       // Arrow Pack
       const packGeo = new THREE.BoxGeometry(0.4, 0.8, 0.4);

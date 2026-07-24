@@ -3,9 +3,9 @@ import { PowerUpDefinition, PlayerProfile } from '../types/game';
 export const GAME_CONFIG = {
   // Canvas & World physics
   LANE_WIDTH: 1.8, // Width between lanes in 3D world units
-  LANE_SPEED_BASE: 26, // Base Z movement speed
-  LANE_SPEED_MAX: 65,  // Max speed cap
-  ACCELERATION: 0.12,  // Speed increase over distance
+  LANE_SPEED_BASE: 20, // Base Z movement speed (+5% per hero level)
+  LANE_SPEED_MAX: 52,  // Max speed cap
+  ACCELERATION: 0.04,  // Smooth speed increase over distance
   GRAVITY: -38,        // Jump gravity
   JUMP_VELOCITY: 14.5, // Initial vertical velocity
   SLIDE_DURATION: 0.7, // Seconds of sliding posture
