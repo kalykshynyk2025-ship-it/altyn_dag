@@ -135,11 +135,11 @@ export default function App() {
         switch (e.code) {
           case 'ArrowLeft':
           case 'KeyA':
-            engineRef.current.moveLeft();
+            engineRef.current.moveRight();
             break;
           case 'ArrowRight':
           case 'KeyD':
-            engineRef.current.moveRight();
+            engineRef.current.moveLeft();
             break;
           case 'ArrowUp':
           case 'KeyW':
@@ -188,13 +188,13 @@ export default function App() {
 
     if (Math.abs(dx) > Math.abs(dy)) {
       // Horizontal Swipe (Mobile & Desktop):
-      // Swipe left (dx < 0) -> character moves LEFT
-      // Swipe right (dx > 0) -> character moves RIGHT
+      // Inverted: Swipe left (dx < 0) -> character moves RIGHT
+      // Inverted: Swipe right (dx > 0) -> character moves LEFT
       if (Math.abs(dx) > minSwipeDist) {
         if (dx < 0) {
-          engineRef.current.moveLeft();
-        } else {
           engineRef.current.moveRight();
+        } else {
+          engineRef.current.moveLeft();
         }
       }
     } else {
@@ -311,8 +311,8 @@ export default function App() {
           profile={profile}
           onPauseToggle={() => engineRef.current?.setState('PAUSED')}
           onShootBow={() => engineRef.current?.shootBow()}
-          onMoveLeft={() => engineRef.current?.moveLeft()}
-          onMoveRight={() => engineRef.current?.moveRight()}
+          onMoveLeft={() => engineRef.current?.moveRight()}
+          onMoveRight={() => engineRef.current?.moveLeft()}
           onJump={() => engineRef.current?.jump()}
           onSlide={() => engineRef.current?.slide()}
         />
