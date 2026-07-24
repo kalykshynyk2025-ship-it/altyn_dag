@@ -135,11 +135,11 @@ export default function App() {
         switch (e.code) {
           case 'ArrowLeft':
           case 'KeyA':
-            engineRef.current.moveLeft();
+            engineRef.current.moveRight();
             break;
           case 'ArrowRight':
           case 'KeyD':
-            engineRef.current.moveRight();
+            engineRef.current.moveLeft();
             break;
           case 'ArrowUp':
           case 'KeyW':
