@@ -1,0 +1,21 @@
+{
+  "short_name": "Алтын Даг",
+  "name": "Алтын Даг - Золотая степь (Tuvan Epic Runner)",
+  "icons": [
+    {
+      "src": "pwa-icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "pwa-icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#1C1917",
+  "theme_color": "#D97706",
+  "display": "standalone",
+  "orientation": "portrait"
+}
