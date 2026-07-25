@@ -9,13 +9,22 @@ import {
   ActivePowerUpState,
   Particle,
   PlayerProfile,
-  PowerUpType
+  PowerUpType,
+  ObstacleType
 } from '../types/game';
 import { GAME_CONFIG } from '../config/gameConfig';
 import { BIOMES_CONFIG, STORY_CHAPTERS, HORSE_BREEDS, LORE_FRAGMENTS } from '../narrative/storyData';
 import { CanvasRenderer } from '../entities/CanvasRenderer';
 import { ThreeJsRenderer } from '../entities/ThreeJsRenderer';
 import { audioManager } from '../utils/audioManager';
+
+const VOICE_DESTROYABLE_OBSTACLES = new Set<ObstacleType>([
+  'ROCK',
+  'LOG',
+  'BARRICADE',
+  'TREE_BRANCH',
+  'ROCKFALL'
+]);
 
 export class GameEngine {
   private canvas: HTMLCanvasElement;
@@ -358,26 +367,28 @@ export class GameEngine {
       const shockwaveMinZ = playerZ - 5;
       const shockwaveMaxZ = playerZ + 85;
 
-      // 1. Clear all obstacles in radius across ALL 3 lanes (fences, trees, rocks, tents, logs, etc.)
+      // 1. Clear ONLY destroyable obstacles in radius across ALL 3 lanes (fences, logs, trees, branches, rocks, rockfall)
       this.obstacles.forEach(obs => {
         if (!obs.destroyed && obs.z >= shockwaveMinZ && obs.z <= shockwaveMaxZ) {
-          obs.destroyed = true;
-          this.score += 50;
-          audioManager.playHitSound();
+          if (VOICE_DESTROYABLE_OBSTACLES.has(obs.type)) {
+            obs.destroyed = true;
+            this.score += 50;
+            audioManager.playHitSound();
 
-          for (let i = 0; i < 4; i++) {
-            this.particles.push({
-              x: obs.lane * GAME_CONFIG.LANE_WIDTH,
-              y: 1.2,
-              z: obs.z,
-              vx: (Math.random() - 0.5) * 6,
-              vy: Math.random() * 5 + 2,
-              vz: (Math.random() - 0.5) * 6,
-              size: 5,
-              color: '#EF4444',
-              life: 0.5,
-              maxLife: 0.5
-            });
+            for (let i = 0; i < 4; i++) {
+              this.particles.push({
+                x: obs.lane * GAME_CONFIG.LANE_WIDTH,
+                y: 1.2,
+                z: obs.z,
+                vx: (Math.random() - 0.5) * 6,
+                vy: Math.random() * 5 + 2,
+                vz: (Math.random() - 0.5) * 6,
+                size: 5,
+                color: '#EF4444',
+                life: 0.5,
+                maxLife: 0.5
+              });
+            }
           }
         }
       });
@@ -530,16 +541,19 @@ export class GameEngine {
         }
 
         if (activeHeroVoice) {
-          // Voice clears obstacle
-          obs.destroyed = true;
-          audioManager.playHitSound();
-          if (activeHeroVoice.charges !== undefined) {
-            activeHeroVoice.charges -= 1;
-            if (activeHeroVoice.charges <= 0) {
-              this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'HERO_VOICE');
+          if (VOICE_DESTROYABLE_OBSTACLES.has(obs.type)) {
+            // Voice clears destroyable obstacle
+            obs.destroyed = true;
+            audioManager.playHitSound();
+            if (activeHeroVoice.charges !== undefined) {
+              activeHeroVoice.charges -= 1;
+              if (activeHeroVoice.charges <= 0) {
+                this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'HERO_VOICE');
+              }
             }
+            return;
           }
-          return;
+          // Non-destroyable obstacles (Yurt, Ovao, Rivers) must be avoided or jumped
         }
 
         if (hasEagleWings) {
@@ -716,17 +730,18 @@ export class GameEngine {
 
   // Find a safe lane for Ancestral Path
   private findSafeLane(): Lane {
-    const checkZ = this.cameraZ + 25;
-    const occupiedLanes = new Set<Lane>();
+    const playerZ = this.cameraZ + 10;
+    const laneObstacleCounts: Record<Lane, number> = { [-1]: 0, [0]: 0, [1]: 0 };
+
     this.obstacles.forEach(o => {
-      if (!o.destroyed && Math.abs(o.z - checkZ) < 15) {
-        occupiedLanes.add(o.lane);
+      if (!o.destroyed && o.z >= playerZ + 5 && o.z <= playerZ + 90) {
+        laneObstacleCounts[o.lane] = (laneObstacleCounts[o.lane] || 0) + 1;
       }
     });
 
     const candidateLanes: Lane[] = [-1, 0, 1];
-    const freeLane = candidateLanes.find(l => !occupiedLanes.has(l));
-    return freeLane !== undefined ? freeLane : 0;
+    candidateLanes.sort((a, b) => laneObstacleCounts[a] - laneObstacleCounts[b]);
+    return candidateLanes[0];
   }
 
   // Segment Generator (Guaranteed safe path)

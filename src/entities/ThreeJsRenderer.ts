@@ -51,8 +51,9 @@ export class ThreeJsRenderer {
   private particlePositions: Float32Array;
   private particleColors: Float32Array;
 
-  // Shockwave
+  // Shockwave & Safe Path
   private shockwaveMesh: THREE.Mesh;
+  private ancestralPathMesh: THREE.Mesh;
 
   private width = 0;
   private height = 0;
@@ -152,12 +153,18 @@ export class ThreeJsRenderer {
     this.playerGroup.add(this.shieldMeshGroup);
     this.scene.add(this.playerGroup);
 
-    // 7. Shockwave Ring Mesh
+    // 7. Shockwave Ring Mesh & Ancestral Path
     const ringGeo = new THREE.RingGeometry(0.1, 1, 32);
     const ringMat = new THREE.MeshBasicMaterial({ color: 0xef4444, side: THREE.DoubleSide, transparent: true, opacity: 0 });
     this.shockwaveMesh = new THREE.Mesh(ringGeo, ringMat);
     this.shockwaveMesh.rotation.x = -Math.PI / 2;
     this.scene.add(this.shockwaveMesh);
+
+    const pathGeo = new THREE.PlaneGeometry(GAME_CONFIG.LANE_WIDTH * THREE_GLOBAL_MULT * 0.95, 180);
+    const pathMat = new THREE.MeshBasicMaterial({ color: 0xf59e0b, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+    this.ancestralPathMesh = new THREE.Mesh(pathGeo, pathMat);
+    this.ancestralPathMesh.rotation.x = -Math.PI / 2;
+    this.scene.add(this.ancestralPathMesh);
 
     // 8. Particles System
     this.particlePositions = new Float32Array(this.maxParticles * 3);
@@ -434,7 +441,7 @@ export class ThreeJsRenderer {
       this.wingsMeshGroup.rotation.z = Math.sin(time * 15) * 0.2;
     }
 
-    // Voice Shockwave
+    // Voice Shockwave & Ancestral Path Overlay
     const voicePower = activePowerUps.find(p => p.type === 'HERO_VOICE');
     if (voicePower) {
       const radius = ((voicePower.maxTime - voicePower.remainingTime) / voicePower.maxTime) * 35;
@@ -443,6 +450,14 @@ export class ThreeJsRenderer {
       (this.shockwaveMesh.material as THREE.MeshBasicMaterial).opacity = voicePower.remainingTime / voicePower.maxTime;
     } else {
       (this.shockwaveMesh.material as THREE.MeshBasicMaterial).opacity = 0;
+    }
+
+    if (params.safeLaneHint !== undefined) {
+      this.ancestralPathMesh.visible = true;
+      this.ancestralPathMesh.position.set(params.safeLaneHint * GAME_CONFIG.LANE_WIDTH * THREE_GLOBAL_MULT, 0.05, cameraZ + 90);
+      (this.ancestralPathMesh.material as THREE.MeshBasicMaterial).opacity = 0.55 + Math.sin(time * 8) * 0.15;
+    } else {
+      this.ancestralPathMesh.visible = false;
     }
 
     // 4. Update 3D Obstacle Meshes

@@ -74,7 +74,7 @@ export class CanvasRenderer {
 
     // 4. Render Active PowerUp World Overlays (Ancestral Path line, etc.)
     if (safeLaneHint !== undefined) {
-      this.drawAncestralPath(safeLaneHint, cameraZ);
+      this.drawAncestralPath(safeLaneHint, cameraZ, time);
     }
 
     // 5. Sort all 3D entities (obstacles, collectibles, enemies, player) by Z distance (back-to-front rendering)
@@ -270,18 +270,73 @@ export class CanvasRenderer {
     }
   }
 
-  // Ancestral Path Overlay
-  private drawAncestralPath(safeLane: Lane, cameraZ: number) {
+  // Ancestral Path Overlay (Bright Golden Glowing Safe Trajectory)
+  private drawAncestralPath(safeLane: Lane, cameraZ: number, time: number) {
     const laneX = safeLane * GAME_CONFIG.LANE_WIDTH;
-    const p1 = this.project(laneX, 0.1, 5);
-    const p2 = this.project(laneX, 0.1, 100);
+    const halfWidth = GAME_CONFIG.LANE_WIDTH * 0.45;
 
-    this.ctx.strokeStyle = 'rgba(245, 158, 11, 0.85)';
-    this.ctx.lineWidth = p1.scale * 45;
-    this.ctx.beginPath();
-    this.ctx.moveTo(p2.px, p2.py);
-    this.ctx.lineTo(p1.px, p1.py);
-    this.ctx.stroke();
+    const zNear = 5;
+    const zFar = 110;
+    const step = 4;
+
+    this.ctx.save();
+
+    // 1. Glowing perspective golden road segments
+    for (let z = zNear; z < zFar; z += step) {
+      const z1 = z;
+      const z2 = z + step;
+
+      const p1L = this.project(laneX - halfWidth, 0.05, z1);
+      const p1R = this.project(laneX + halfWidth, 0.05, z1);
+      const p2R = this.project(laneX + halfWidth, 0.05, z2);
+      const p2L = this.project(laneX - halfWidth, 0.05, z2);
+
+      if (!p1L.visible && !p2L.visible) continue;
+
+      const alpha = Math.max(0, 0.7 - (z / zFar) * 0.55);
+
+      // Gold ground fill glow
+      this.ctx.fillStyle = `rgba(245, 158, 11, ${alpha})`;
+      this.ctx.beginPath();
+      this.ctx.moveTo(p1L.px, p1L.py);
+      this.ctx.lineTo(p1R.px, p1R.py);
+      this.ctx.lineTo(p2R.px, p2R.py);
+      this.ctx.lineTo(p2L.px, p2L.py);
+      this.ctx.closePath();
+      this.ctx.fill();
+
+      // Bright edge lines
+      this.ctx.strokeStyle = `rgba(254, 240, 138, ${alpha + 0.3})`;
+      this.ctx.lineWidth = Math.max(1.5, p1L.scale * 6);
+      this.ctx.beginPath();
+      this.ctx.moveTo(p1L.px, p1L.py);
+      this.ctx.lineTo(p2L.px, p2L.py);
+      this.ctx.moveTo(p1R.px, p1R.py);
+      this.ctx.lineTo(p2R.px, p2R.py);
+      this.ctx.stroke();
+    }
+
+    // 2. Animated golden chevrons / forward arrows
+    const arrowSpacing = 16;
+    const offset = (time * 35) % arrowSpacing;
+    for (let z = zNear + offset; z < zFar; z += arrowSpacing) {
+      const pCenter = this.project(laneX, 0.2, z);
+      const pAhead = this.project(laneX, 0.2, z + 5);
+      if (!pCenter.visible) continue;
+
+      const scale = pCenter.scale * 32;
+      const alpha = Math.max(0, 0.95 - (z / zFar) * 0.75);
+
+      this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+      this.ctx.lineWidth = Math.max(2.5, scale * 0.2);
+      this.ctx.beginPath();
+      this.ctx.moveTo(pCenter.px - scale * 0.45, pCenter.py + scale * 0.35);
+      this.ctx.lineTo(pAhead.px, pAhead.py);
+      this.ctx.lineTo(pCenter.px + scale * 0.45, pCenter.py + scale * 0.35);
+      this.ctx.stroke();
+    }
+
+    this.ctx.restore();
   }
 
   // Draw Hero Riding the Epic Steed

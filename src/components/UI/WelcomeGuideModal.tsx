@@ -267,10 +267,10 @@ export const WelcomeGuideModal: React.FC<WelcomeGuideModalProps> = ({
                     </div>
                     <p className="text-[11px] text-[#2D2D2D]/90 mt-1 font-medium leading-tight">
                       {lang === 'TYV' 
-                        ? 'Үн күш-биле бүгү шаптарааларны (забор, ыяш, камни, палатка) уничтожатьтаар, база 3 оруктан ШУПТУ монеталарны биле артефакттарны авто-чыып алар!' 
+                        ? 'Мощный клич узуткаар: забор, ыяш, камни, завалы. Дүрген чыып алар 3 оруктан монеталарны! (Юрта биле хемнерни ажып эртер херек).' 
                         : lang === 'EN' 
-                        ? 'Shockwave destroys all obstacles (fences, trees, rocks, tents) in range and automatically collects ALL coins & artifacts across ALL 3 lanes!' 
-                        : 'Уничтожает все препятствия (забор, дерево, камни, палатка, заваленный забор) в радиусе и автоматически собирает ВСЕ монеты и артефакты на ВСЕХ 3 полосах!'}
+                        ? 'Shockwave destroys fences, logs, trees, rocks, and rockfalls in range, while collecting all coins across 3 lanes! (Yurts, Ovao, and Rivers must still be bypassed).' 
+                        : 'Уничтожает разрушаемые препятствия (заборы, бревна, деревья, сучья, камни, камнепады) и автоматически собирает монеты со всех 3 полос! (Юрты, Оваа и реки нужно обходить или перепрыгивать).'}
                     </p>
                   </div>
 
