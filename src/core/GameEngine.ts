@@ -351,6 +351,66 @@ export class GameEngine {
       this.safeLaneHint = undefined;
     }
 
+    // Hero Voice Shockwave & 3-Lane Coin/Artifact Collection
+    const heroVoicePowerUp = this.activePowerUps.find(p => p.type === 'HERO_VOICE');
+    if (heroVoicePowerUp) {
+      const playerZ = this.cameraZ + 10;
+      const shockwaveMinZ = playerZ - 5;
+      const shockwaveMaxZ = playerZ + 85;
+
+      // 1. Clear all obstacles in radius across ALL 3 lanes (fences, trees, rocks, tents, logs, etc.)
+      this.obstacles.forEach(obs => {
+        if (!obs.destroyed && obs.z >= shockwaveMinZ && obs.z <= shockwaveMaxZ) {
+          obs.destroyed = true;
+          this.score += 50;
+          audioManager.playHitSound();
+
+          for (let i = 0; i < 4; i++) {
+            this.particles.push({
+              x: obs.lane * GAME_CONFIG.LANE_WIDTH,
+              y: 1.2,
+              z: obs.z,
+              vx: (Math.random() - 0.5) * 6,
+              vy: Math.random() * 5 + 2,
+              vz: (Math.random() - 0.5) * 6,
+              size: 5,
+              color: '#EF4444',
+              life: 0.5,
+              maxLife: 0.5
+            });
+          }
+        }
+      });
+
+      // 2. Automatically collect all coins and artifacts across ALL 3 LANES in radius
+      this.collectibles.forEach(item => {
+        if (!item.collected && item.z >= shockwaveMinZ && item.z <= shockwaveMaxZ) {
+          item.collected = true;
+          if (item.type === 'TOKEN') {
+            const tokenBonus = horse.id === 'CELESTIAL_MANE' ? 2 : 1;
+            this.tokensCollectedInRun += tokenBonus;
+            audioManager.playTokenSound();
+          } else if (item.type === 'ARROW') {
+            this.profile.arrowsCount += 5 + Math.floor(this.profile.bowLevel * 0.5);
+            audioManager.playPowerUpSound();
+          } else if (item.type === 'POWERUP' && item.powerUpType) {
+            if (item.powerUpType !== 'HERO_VOICE') {
+              this.activatePowerUp(item.powerUpType);
+            }
+          } else if (item.type === 'SACRED_SACK') {
+            const superPowerTypes: PowerUpType[] = ['SHIELD_SPIRIT', 'EAGLE_WINGS'];
+            const chosenSuper = superPowerTypes[Math.floor(Math.random() * superPowerTypes.length)];
+            this.activateSuperPowerUp(chosenSuper);
+          } else if (item.type === 'LORE_FRAGMENT' && item.fragmentId) {
+            if (!this.profile.unlockedLoreIds.includes(item.fragmentId)) {
+              this.profile.unlockedLoreIds.push(item.fragmentId);
+            }
+            audioManager.playPowerUpSound();
+          }
+        }
+      });
+    }
+
     // 7. Magnet Effect for Tokens (Speed Wind)
     if (hasSpeedWind) {
       this.collectibles.forEach(item => {
@@ -460,7 +520,7 @@ export class GameEngine {
 
     // 10. Player Collision Detection with Obstacles
     const shieldPowerUp = this.activePowerUps.find(p => p.type === 'SHIELD_SPIRIT');
-    const heroVoicePowerUp = this.activePowerUps.find(p => p.type === 'HERO_VOICE');
+    const activeHeroVoice = this.activePowerUps.find(p => p.type === 'HERO_VOICE');
 
     this.obstacles.forEach(obs => {
       if (!obs.destroyed && obs.lane === this.targetLane && Math.abs(obs.z - playerZ) < 2.2) {
@@ -469,13 +529,13 @@ export class GameEngine {
           return;
         }
 
-        if (heroVoicePowerUp) {
+        if (activeHeroVoice) {
           // Voice clears obstacle
           obs.destroyed = true;
           audioManager.playHitSound();
-          if (heroVoicePowerUp.charges !== undefined) {
-            heroVoicePowerUp.charges -= 1;
-            if (heroVoicePowerUp.charges <= 0) {
+          if (activeHeroVoice.charges !== undefined) {
+            activeHeroVoice.charges -= 1;
+            if (activeHeroVoice.charges <= 0) {
               this.activePowerUps = this.activePowerUps.filter(p => p.type !== 'HERO_VOICE');
             }
           }
@@ -591,6 +651,24 @@ export class GameEngine {
         maxTime: pDef.durationSeconds
       });
     }
+
+    if (pType === 'HERO_VOICE') {
+      const playerZ = this.cameraZ + 10;
+      for (let i = 0; i < 30; i++) {
+        this.particles.push({
+          x: (Math.random() - 0.5) * 8,
+          y: Math.random() * 3 + 0.5,
+          z: playerZ + Math.random() * 45,
+          vx: (Math.random() - 0.5) * 10,
+          vy: Math.random() * 7,
+          vz: Math.random() * 15 + 5,
+          size: 6,
+          color: '#EF4444',
+          life: 0.8,
+          maxLife: 0.8
+        });
+      }
+    }
   }
 
   // Activate Super Powerup from Sacred Sacks (Chapter 5 feature: 5x duration and 15 charges)
@@ -615,6 +693,24 @@ export class GameEngine {
         maxTime: superDuration,
         charges
       });
+    }
+
+    if (pType === 'HERO_VOICE') {
+      const playerZ = this.cameraZ + 10;
+      for (let i = 0; i < 40; i++) {
+        this.particles.push({
+          x: (Math.random() - 0.5) * 9,
+          y: Math.random() * 3 + 0.5,
+          z: playerZ + Math.random() * 60,
+          vx: (Math.random() - 0.5) * 12,
+          vy: Math.random() * 8,
+          vz: Math.random() * 20 + 5,
+          size: 7,
+          color: '#EF4444',
+          life: 0.9,
+          maxLife: 0.9
+        });
+      }
     }
   }
 

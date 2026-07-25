@@ -68,7 +68,7 @@ export const GAME_CONFIG = {
     HERO_VOICE: {
       type: 'HERO_VOICE',
       name: 'Голос богатыря',
-      description: 'Богатырский клич уничтожает все близлежащие барьеры!',
+      description: 'Богатырский клич уничтожает все препятствия и автоматически собирает монеты на всех 3 полосах!',
       durationSeconds: 5,
       color: '#EF4444', // Red
       iconName: 'Volume2'
@@ -76,7 +76,7 @@ export const GAME_CONFIG = {
     CELESTIAL_ARROW: {
       type: 'CELESTIAL_ARROW',
       name: 'Небесная стрела',
-      description: 'Запускает каскад самонаводящихся стрел по всем врагам!',
+      description: 'Запускает каскад самонаводящихся стрел по всем врагам и преградам!',
       durationSeconds: 6,
       color: '#A855F7', // Purple
       iconName: 'Target'
@@ -84,7 +84,7 @@ export const GAME_CONFIG = {
     SHIELD_SPIRIT: {
       type: 'SHIELD_SPIRIT',
       name: 'Защитный дух',
-      description: 'Создает сияющий душевный щит, защищающий от однократного удара!',
+      description: 'Создает сияющий душевный щит, защищающий от ударных столкновений!',
       durationSeconds: 10,
       color: '#10B981', // Emerald
       iconName: 'Shield'
@@ -92,7 +92,7 @@ export const GAME_CONFIG = {
     ANCESTRAL_PATH: {
       type: 'ANCESTRAL_PATH',
       name: 'След предков',
-      description: 'Прокладывает золотой световой путь на наиболее безопасной полосе!',
+      description: 'Прокладывает золотую светящуюся безопасную траекторию заранее, помогая легко избегать препятствий!',
       durationSeconds: 8,
       color: '#F59E0B', // Gold
       iconName: 'Compass'

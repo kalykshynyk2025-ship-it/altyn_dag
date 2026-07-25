@@ -249,6 +249,84 @@ export const WelcomeGuideModal: React.FC<WelcomeGuideModalProps> = ({
                 </div>
               </div>
 
+              {/* 3. Artifacts & Power-Ups Guide */}
+              <div className="bg-[#F5F5F0] p-3 rounded-2xl border border-[#D4AF37]/50">
+                <h3 className="font-extrabold text-xs text-[#8B4513] uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-600" />
+                  <span>
+                    {lang === 'TYV' ? 'Артефакттар биле Маадырлыг Күш' : lang === 'EN' ? 'Artifacts & Power-Ups' : 'Артефакты и Супер-силы'}
+                  </span>
+                </h3>
+
+                <div className="space-y-2 text-xs">
+                  {/* Богатырский голос */}
+                  <div className="bg-[#FDF6E3] p-2.5 rounded-xl border border-red-500/40">
+                    <div className="font-extrabold text-red-700 flex items-center gap-1.5 text-xs">
+                      <span>📣</span>
+                      <span>{lang === 'TYV' ? 'Богатырский голос / Маадырлыг үн' : lang === 'EN' ? 'Bogatyr Voice' : 'Богатырский голос'}</span>
+                    </div>
+                    <p className="text-[11px] text-[#2D2D2D]/90 mt-1 font-medium leading-tight">
+                      {lang === 'TYV' 
+                        ? 'Үн күш-биле бүгү шаптарааларны (забор, ыяш, камни, палатка) уничтожатьтаар, база 3 оруктан ШУПТУ монеталарны биле артефакттарны авто-чыып алар!' 
+                        : lang === 'EN' 
+                        ? 'Shockwave destroys all obstacles (fences, trees, rocks, tents) in range and automatically collects ALL coins & artifacts across ALL 3 lanes!' 
+                        : 'Уничтожает все препятствия (забор, дерево, камни, палатка, заваленный забор) в радиусе и автоматически собирает ВСЕ монеты и артефакты на ВСЕХ 3 полосах!'}
+                    </p>
+                  </div>
+
+                  {/* След предков */}
+                  <div className="bg-[#FDF6E3] p-2.5 rounded-xl border border-amber-500/40">
+                    <div className="font-extrabold text-amber-800 flex items-center gap-1.5 text-xs">
+                      <span>🧭</span>
+                      <span>{lang === 'TYV' ? 'След предков / Өбүгелер сураа' : lang === 'EN' ? 'Trail of Ancestors' : 'След предков'}</span>
+                    </div>
+                    <p className="text-[11px] text-[#2D2D2D]/90 mt-1 font-medium leading-tight">
+                      {lang === 'TYV' 
+                        ? 'Алдын чырык-биле ажык айыыл чок орукту баш удур айтып бээр!' 
+                        : lang === 'EN' 
+                        ? 'Illuminates a golden glowing safe trajectory line in advance on the free lane to bypass all collisions!' 
+                        : 'Заранее подсвечивает золотую безопасную траекторию на свободной полосе, помогая без риска объезжать преграды!'}
+                    </p>
+                  </div>
+
+                  {/* Небесная стрела */}
+                  <div className="bg-[#FDF6E3] p-2.5 rounded-xl border border-purple-500/40">
+                    <div className="font-extrabold text-purple-800 flex items-center gap-1.5 text-xs">
+                      <span>🏹</span>
+                      <span>{lang === 'TYV' ? 'Небесная стрела / Дээрде сок' : lang === 'EN' ? 'Celestial Arrow' : 'Небесная стрела'}</span>
+                    </div>
+                    <p className="text-[11px] text-[#2D2D2D]/90 mt-1 font-medium leading-tight">
+                      {lang === 'TYV' 
+                        ? 'Ыдыктыг соктар боттары дайызыннарже биле шаптарааларже ужуп кирип узуткаар!' 
+                        : lang === 'EN' 
+                        ? 'Fires automatic homing arrows destroying all enemies and barricades ahead!' 
+                        : 'Автоматически запускает каскад самонаводящихся стрел, поражающих всех врагов и опасности впереди!'}
+                    </p>
+                  </div>
+
+                  {/* Крылья орла & Защитный дух */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div className="bg-[#FDF6E3] p-2 rounded-xl border border-sky-500/40">
+                      <span className="font-bold text-sky-800 block text-[11px]">
+                        🦅 {lang === 'TYV' ? 'Крылья орла' : lang === 'EN' ? 'Eagle Wings' : 'Крылья орла'}
+                      </span>
+                      <span className="text-[10px] text-[#2D2D2D]/80 block mt-0.5">
+                        {lang === 'TYV' ? 'Аътты дээрже көдүрүп паритьнейт.' : lang === 'EN' ? 'Soars above all ground obstacles and rivers!' : 'Поднимает коня в воздух над любыми камнями и реками!'}
+                      </span>
+                    </div>
+
+                    <div className="bg-[#FDF6E3] p-2 rounded-xl border border-emerald-500/40">
+                      <span className="font-bold text-emerald-800 block text-[11px]">
+                        🛡️ {lang === 'TYV' ? 'Защитный дух' : lang === 'EN' ? 'Shield Spirit' : 'Защитный дух'}
+                      </span>
+                      <span className="text-[10px] text-[#2D2D2D]/80 block mt-0.5">
+                        {lang === 'TYV' ? 'Камгалал аура бээр.' : lang === 'EN' ? 'Absorbs collision damage safely.' : 'Щит, полностью защищающий от прямого столкновения!'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* 3. Collectibles & Upgrades */}
               <div className="bg-[#F5F5F0] p-3 rounded-2xl border border-[#D4AF37]/50">
                 <h3 className="font-extrabold text-xs text-[#8B4513] uppercase tracking-wider mb-2 flex items-center gap-1.5">
