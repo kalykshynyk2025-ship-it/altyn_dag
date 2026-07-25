@@ -3,6 +3,7 @@ import { Play, BookOpen, Shield, Settings, FileText, Sparkles, Box, Globe, Scrol
 import { PlayerProfile } from '../../types/game';
 import { STORY_CHAPTERS, getLocalizedChapter } from '../../narrative/storyData';
 import { getTranslation, Language } from '../../utils/translations';
+import { CreditsCard } from './CreditsCard';
 
 interface MainMenuProps {
   profile: PlayerProfile;
@@ -114,6 +115,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({
         <p className="text-[10px] sm:text-xs text-[#8B4513] font-serif italic font-semibold mt-0.5">
           {getTranslation('appSubtitle', lang)}
         </p>
+
+        {/* Creator & Developer Credits Card */}
+        <CreditsCard compact lang={lang} />
 
         {/* Storyteller Quote Card ("Слово Сказителя") */}
         <div className="w-full bg-[#F5F5F0] border-l-4 border-l-[#8B4513] border border-[#2D2D2D]/10 rounded-xl p-2 sm:p-2.5 my-1.5 text-left shadow-xs">

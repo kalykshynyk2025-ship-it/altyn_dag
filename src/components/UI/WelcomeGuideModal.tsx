@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Globe, ArrowLeft, Shield, Sparkles, Check, Play, Award } from 'lucide-react';
 import { PlayerProfile } from '../../types/game';
 import { Language } from '../../utils/translations';
+import { CreditsCard } from './CreditsCard';
 
 interface WelcomeGuideModalProps {
   profile: PlayerProfile;
@@ -287,6 +288,9 @@ export const WelcomeGuideModal: React.FC<WelcomeGuideModalProps> = ({
                   </span>
                 </div>
               </div>
+
+              {/* Creator & Developer Credits */}
+              <CreditsCard lang={lang} />
 
             </div>
 

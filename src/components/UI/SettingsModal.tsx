@@ -2,6 +2,7 @@ import React from 'react';
 import { ArrowLeft, Volume2, VolumeX, Smartphone, RefreshCw, Globe, X } from 'lucide-react';
 import { PlayerProfile } from '../../types/game';
 import { getTranslation, Language } from '../../utils/translations';
+import { CreditsCard } from './CreditsCard';
 
 interface SettingsModalProps {
   profile: PlayerProfile;
@@ -126,6 +127,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Creator & Developer Credits */}
+          <CreditsCard lang={lang} />
 
           {/* PWA Mobile Installation Guide */}
           <div className="bg-[#F5F5F0] border border-[#D4AF37]/50 rounded-2xl p-4 shadow-xs">

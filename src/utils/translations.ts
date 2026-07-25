@@ -62,6 +62,16 @@ export const TRANSLATIONS = {
     TYV: 'ЧАШПАК АЛЫР',
     EN: 'START RIDE'
   },
+  createdLabel: {
+    RU: 'СОЗДАНО',
+    TYV: 'БҮДҮРГЕН',
+    EN: 'CREATED BY'
+  },
+  gameDevLabel: {
+    RU: 'Разработка игры:',
+    TYV: 'Оюнну кылганы:',
+    EN: 'Game Development:'
+  },
 
   // Navigation Menu
   navLore: {
